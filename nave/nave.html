@@ -12,131 +12,177 @@
     <link rel="apple-touch-icon" href="icon.png">
     <!-- Place favicon.ico in the root directory -->
 
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/main.css">
+    <!--<link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/main.css">-->
 </head>
 
-<body onkeydown="teclaPresionada(event);">
+<body onkeydown="teclaPresionada(event);" onkeyup="teclaNoPresionada();">
     <!-- Lienzo de dibujo -->
     <canvas id="miCanvas" width="640" height="480"></canvas>
+
 
     <script type="application/javascript">
         //Recuperamos el canvas donde dibujaremos
         var canvas = document.getElementById("miCanvas");
         //Establecemos el contexto de ese canvas en 2D. Es decir, dibujaremos en 2D.
         var contexto = canvas.getContext("2d");
-
         //Cargamos imágenes (Página 53 del libro)
         var spriteSheet = new Image();
         var x = 10;
         var y = 10;
-        var posiciones = [{x: 38, y: 6, ancho: 24, alto: 16},
-                          {x: 101, y: 6, ancho: 24, alto: 16},
-                          {x: 166, y: 6,ancho: 24, alto: 16}];
-        var indiceAnimacion=0;
-        var ultimoCuadro=new Date().getTime();
-        var tiempoAcumulado=0;
-      
-        var moverDerecha = function() {
-                x++;
+        var posiciones = [{ x: 38, y: 6, ancho: 24, alto: 16 },
+        { x: 101, y: 6, ancho: 24, alto: 16 },
+        { x: 166, y: 6, ancho: 24, alto: 16 }];
+        var indiceAnimacion = 0;
+        var ultimoCuadro = new Date().getTime();
+        var tiempoAcumulado = 0;
+        var estaMoviendo = false;
+        var moverDerecha = function () {
+            x++;
             if (indiceAnimacion < 2 && tiempoAcumulado > 1) {
                 tiempoAcumulado = 0;
                 indiceAnimacion++;
             }
-           }
-
-           var moverIzquierda = function() {
-               x--;
+        }
+        var moverIzquierda = function () {
+            x--;
             if (indiceAnimacion > 0 && tiempoAcumulado > 1) {
                 tiempoAcumulado = 0;
                 indiceAnimacion--;
             }
-           }
-        
-        var moverPersonaje=moverDerecha;
-
-     
-          //Enemigo
-          var enemigo = function () {
-              var x = (Math.random()*400) + 40, y = 1;
-
-              this.actualizar= function () {
-                  y++;
-              };
-
-              this.dibujar= function (contexto) {
-                  contexto.drawImage(spriteSheet, 5, 200, 14, 15, x, y, 15, 10);
-              };
-          }
-
-          var miEnemigo = new enemigo();
-
-          var enemigos = [];
-          for (var i = 0; i < 10; i++){
-              enemigos.push(new enemigo());
-          }
-          
-        
+        }
+        var moverPersonaje = moverDerecha;
+        //Enemigo
+        var enemigo = function () {
+            var x = (Math.random() * 400) + 40, y = 1;
+            this.actualizar = function () {
+                y++;
+            };
+            this.dibujar = function (contexto) {
+                contexto.drawImage(spriteSheet, 5, 200, 14, 15, x, y, 15, 20);
+            };
+        }
+        var miEnemigo = new enemigo();
+        var enemigos = [];
+        for (var i = 0; i < 10; i++) {
+            enemigos.push(new enemigo());
+        }
         spriteSheet.onload = function () {
             setInterval(actualizarJuego, 1000 / 33);
         };
         spriteSheet.src = "../images/1942-general-sprites.png";
-
+         function teclaNoPresionada(){
+            estaMoviendo=false;
+        }
+   
+        function teclaPresionada(event) {
+                console.log(event);
+            var tecla = event.keyCode;
+                switch(tecla){
+                    case 65:
+                    x--;
+                    estaMoviendo=true;
+                    if(indiceAnimacion>0 && tiempoAcumulado>1){
+                        tiempoAcumulado = 0;
+                        indiceAnimacion--;
+                    }
+                    break;
+                    case 83:
+                    y++;
+                    break;
+                    case 68:
+                    x++;
+                    estaMoviendo=true;
+                    //indiceAnimacion <4
+                    if (indiceAnimacion<2 && tiempoAcumulado>1) {
+                        tiempoAcumulado =0;
+                        indiceAnimacion++;
+                        
+                    }
+                    break;
+                    case 87:
+                    y--;
+                    break;
+                }
+                console.log(indiceAnimacion);
+            }
+       
         function actualizarJuego() {
-          
-
             contexto.fillStyle = "white";
             contexto.fillRect(0, 0, 640, 480);
-         
-            var esteCuadro=new Date().getTime(),
-                delta=(esteCuadro-ultimoCuadro)/1000;
-                ultimoCuadro=esteCuadro;
-                tiempoAcumulado+=delta;
-
-            
-
-           //Obtenemos uno de los objetos del vector
+            var esteCuadro = new Date().getTime(),
+                delta = (esteCuadro - ultimoCuadro) / 1000;
+            ultimoCuadro = esteCuadro;
+            tiempoAcumulado += delta;
+            //Obtenemos uno de los objetos del vector
             var imagenActual = posiciones[indiceAnimacion];
-            
             /*miEnemigo.actualizar();
             miEnemigo.dibujar(contexto);*/
-           
-           
-            for(var i = 0; i< enemigos.length; i++){
+            for (var i = 0; i < enemigos.length; i++) {
                 enemigos[i].actualizar();
                 enemigos[i].dibujar(contexto);
             }
-            
-            contexto.drawImage(spriteSheet, imagenActual.x, imagenActual.y, 25, 16, x, y, 50, 20);
+         //console.log(imagenActual);
+            contexto.drawImage(spriteSheet, imagenActual.x, imagenActual.y, 25, 16, x, y, 30, 30);
             moverPersonaje();
-            
-            if (x>200) {
-                moverPersonaje=moverIzquierda;
+            if (x > 200) {
+                moverPersonaje = moverIzquierda;
             }
-
             /*if (x<0) {
                 moverPersonaje=moverDerecha;
             }*/
-           
-           function teclaPresionada(event){
-               console.log(event);
-           }
-            
-           function teclapresionada(event){
-               var tecla = event.keycode;
-               switch(tecla) {
-                   case 65:
-                   break;
-                   case 83:
-                   break;
-                   case 68:
-                   break;
-                   case 87:
-                   break;
-               }
-           }
+            if (!estaMoviendo) {
+                if(indiceAnimacion !== 2 && tiempoAcumulado>1){
+                    tiempoAcumulado=0;
+                    indiceAnimacion -= indiceAnimacion>2 ? 1 : -1;
+                }
+            }
             
         }
+        document.addEventListener("keydown" , teclaPresionada , false);
+        document.addEventListener("keyup" , teclaNoPresionada, false);
+        var teclaPresionada = {
+            "65" : false,
+            "83" : false,
+            "68" : false,
+            "87" : false,
+        };
+        function teclaNoPresionada(event) {
+            var tecla = event.keycode;
+            teclaPresionada[tecla] = false;
+        }
+        function teclaPresionada(event){
+            var tecla = event.keyCode;
+            teclaPresionada[tecla] = true; 
+        }
+        if (teclaPresionada["65"]) {
+            x--;
+            if (indiceAnimacion > 0 && tiempoAcumulado > 1) {
+                tiempoAcumulado=0;
+                indiceAnimacion--;
+            }
+        }
+        if (teclaPresionada["68"]) {
+            x++;
+            if (indiceAnimacion > 4 && tiempoAcumulado > 1) {
+                tiempoAcumulado=0;
+                indiceAnimacion++;
+            }
+        } 
+        if (teclaPresionada["83"]) {
+            y++;
+        }
+        if (teclaPresionada["87"]) {
+            y--;
+        }
+        if (!teclaPresionada["65"] &&
+           !teclaPresionada["68"]) {
+               if (indiceAnimacion !== 2 && tiempoAcumulado >1) {
+                   tiempoAcumulado=0;
+                   indiceAnimacion-= indiceAnimacion > 2 ? 1 : -1;
+               }
+           }
+
     </script>
     <style>
         #miCanvas {
@@ -144,5 +190,6 @@
         }
     </style>
 </body>
+
 
 </html>
