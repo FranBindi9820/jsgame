@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="css/main.css">-->
 </head>
 
-<body onkeydown="teclaPresionada(event);" onkeyup="teclaNoPresionada();">
+<body>
     <!-- Lienzo de dibujo -->
     <canvas id="miCanvas" width="640" height="480"></canvas>
 
@@ -37,7 +37,9 @@
         var ultimoCuadro = new Date().getTime();
         var tiempoAcumulado = 0;
         var estaMoviendo = false;
-        var moverDerecha = function () {
+        document.addEventListener("keydown" , teclaPresionada , false);
+        document.addEventListener("keyup" , teclaNoPresionada, false);
+       /* var moverDerecha = function () {
             x++;
             if (indiceAnimacion < 2 && tiempoAcumulado > 1) {
                 tiempoAcumulado = 0;
@@ -50,9 +52,25 @@
                 tiempoAcumulado = 0;
                 indiceAnimacion--;
             }
+        }*/
+        //var moverPersonaje = moverDerecha;
+        var teclaPresionada = {
+            "65" : false,
+            "83" : false,
+            "68" : false,
+            "87" : false,
+        };
+            
+         function teclaNoPresionada(event) {
+            var tecla = event.keyCode;
+            teclaPresionada[tecla] = false;
         }
-        var moverPersonaje = moverDerecha;
+        function teclaPresionada(event){
+            var tecla = event.keyCode;
+            teclaPresionada[tecla] = true; 
+        }
         //Enemigo
+        
         var enemigo = function () {
             var x = (Math.random() * 400) + 40, y = 1;
             this.actualizar = function () {
@@ -71,14 +89,8 @@
             setInterval(actualizarJuego, 1000 / 33);
         };
         spriteSheet.src = "../images/1942-general-sprites.png";
-         function teclaNoPresionada(){
-            estaMoviendo=false;
-        }
-   
-        function teclaPresionada(event) {
-                console.log(event);
-            var tecla = event.keyCode;
-                switch(tecla){
+        
+                /*switch(tecla){
                     case 65:
                     x--;
                     estaMoviendo=true;
@@ -104,9 +116,9 @@
                     y--;
                     break;
                 }
-                console.log(indiceAnimacion);
-            }
-       
+                console.log(indiceAnimacion);*/
+            
+            
         function actualizarJuego() {
             contexto.fillStyle = "white";
             contexto.fillRect(0, 0, 640, 480);
@@ -124,10 +136,10 @@
             }
          //console.log(imagenActual);
             contexto.drawImage(spriteSheet, imagenActual.x, imagenActual.y, 25, 16, x, y, 30, 30);
-            moverPersonaje();
-            if (x > 200) {
+            //moverPersonaje();
+            /*if (x > 200) {
                 moverPersonaje = moverIzquierda;
-            }
+            }*/
             /*if (x<0) {
                 moverPersonaje=moverDerecha;
             }*/
@@ -137,24 +149,7 @@
                     indiceAnimacion -= indiceAnimacion>2 ? 1 : -1;
                 }
             }
-            
-        }
-        document.addEventListener("keydown" , teclaPresionada , false);
-        document.addEventListener("keyup" , teclaNoPresionada, false);
-        var teclaPresionada = {
-            "65" : false,
-            "83" : false,
-            "68" : false,
-            "87" : false,
-        };
-        function teclaNoPresionada(event) {
-            var tecla = event.keycode;
-            teclaPresionada[tecla] = false;
-        }
-        function teclaPresionada(event){
-            var tecla = event.keyCode;
-            teclaPresionada[tecla] = true; 
-        }
+           
         if (teclaPresionada["65"]) {
             x--;
             if (indiceAnimacion > 0 && tiempoAcumulado > 1) {
@@ -183,6 +178,9 @@
                }
            }
 
+        }
+        
+       
     </script>
     <style>
         #miCanvas {
